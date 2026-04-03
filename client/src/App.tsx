@@ -9,11 +9,12 @@ import GoalsPage from './pages/GoalsPage';
 import RecommendationsPage from './pages/RecommendationsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import LandingPage from './pages/LandingPage';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  return isAuthenticated ? <>{children}</> : <Navigate to="/landing" />;
 };
 
 const App: React.FC = () => {
@@ -23,8 +24,12 @@ const App: React.FC = () => {
     <Router>
       <div className="min-h-screen bg-white dark:bg-surface-900 text-surface-900 dark:text-white transition-colors duration-300">
         <Routes>
+          {/* Public landing page */}
+          <Route path="/landing" element={!isAuthenticated ? <LandingPage /> : <Navigate to="/" />} />
           <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" />} />
           <Route path="/register" element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/" />} />
+          
+          {/* Protected app routes */}
           <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="expenses" element={<ExpensesPage />} />
@@ -32,6 +37,9 @@ const App: React.FC = () => {
             <Route path="goals" element={<GoalsPage />} />
             <Route path="recommendations" element={<RecommendationsPage />} />
           </Route>
+
+          {/* Catch-all: redirect to landing for unauth, dashboard for auth */}
+          <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/landing"} />} />
         </Routes>
       </div>
     </Router>
