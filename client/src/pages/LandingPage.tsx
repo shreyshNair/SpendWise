@@ -37,6 +37,8 @@ const features = [
   },
 ];
 
+import { cubicBezier } from 'framer-motion';
+
 const fadeUpVariants = {
   hidden: { opacity: 0, y: 40 },
   visible: (i: number) => ({
@@ -45,11 +47,10 @@ const fadeUpVariants = {
     transition: {
       duration: 0.8,
       delay: i * 0.1,
-      ease: "easeInOut",
+      ease: cubicBezier(0.25, 0.4, 0.25, 1),
     },
   }),
 };
-
 const LandingPage: React.FC = () => {
   return (
     <div className="bg-[#0a0a0a] min-h-screen">
