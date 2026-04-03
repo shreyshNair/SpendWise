@@ -21,7 +21,7 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <div className="min-h-screen bg-surface-50 text-surface-900 transition-colors duration-300">
+      <div className="min-h-screen bg-white dark:bg-surface-900 text-surface-900 dark:text-white transition-colors duration-300">
         <Routes>
           <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" />} />
           <Route path="/register" element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/" />} />

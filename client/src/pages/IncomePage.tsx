@@ -105,15 +105,16 @@ const IncomePage: React.FC = () => {
                         });
                         setAddModalOpen(true);
                     }}
-                    className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold shadow-lg shadow-green-200 dark:shadow-green-900/20 hover:bg-green-700 transition-all active:scale-95"
+                    className="relative flex items-center space-x-2 px-6 py-3 overflow-hidden bg-gray-800 text-white rounded-xl font-semibold shadow-lg shadow-gray-300 dark:shadow-none hover:shadow-xl transition-all active:scale-95 group"
                 >
-                    <Plus className="w-5 h-5" />
-                    <span>Add Income</span>
+                    <span className="absolute inset-0 w-0 h-full bg-primary-600 transition-all duration-500 ease-out group-hover:w-full"></span>
+                    <Plus className="w-5 h-5 relative z-10" />
+                    <span className="relative z-10">Add Income</span>
                 </button>
             </div>
 
             <div className="bg-white dark:bg-surface-800 p-8 rounded-3xl border border-surface-100 dark:border-surface-700 shadow-sm flex items-center space-x-6">
-                <div className="bg-green-100 dark:bg-green-900/20 p-4 rounded-2xl text-green-600 dark:text-green-400">
+                <div className="bg-primary-100 dark:bg-primary-900/20 p-4 rounded-2xl text-primary-600 dark:text-primary-400">
                     <Wallet className="w-8 h-8" />
                 </div>
                 <div>
@@ -138,34 +139,34 @@ const IncomePage: React.FC = () => {
                             {loading ? (
                                 <tr>
                                     <td colSpan={5} className="px-8 py-10 text-center">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-600 mx-auto"></div>
+                                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600 mx-auto"></div>
                                     </td>
                                 </tr>
                             ) : incomes.length > 0 ? incomes.map((income) => (
-                                <tr key={income.id} className="hover:bg-surface-50/50 transition-colors group">
-                                    <td className="px-8 py-5 text-sm text-surface-600 font-medium">
+                                <tr key={income.id} className="hover:bg-primary-50/30 dark:hover:bg-surface-700/50 transition-colors group">
+                                    <td className="px-8 py-5 text-sm text-surface-600 dark:text-surface-300 font-medium">
                                         {format(new Date(income.date), 'MMM dd, yyyy')}
                                     </td>
-                                    <td className="px-8 py-5 text-sm font-bold text-surface-800">
+                                    <td className="px-8 py-5 text-sm font-bold text-surface-800 dark:text-white">
                                         {income.source}
                                     </td>
                                     <td className="px-8 py-5 text-sm">
-                                        <span className="px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold uppercase tracking-wider">
+                                        <span className="px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 text-xs font-bold uppercase tracking-wider">
                                             {income.category}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-5 text-sm font-bold text-green-600 font-mono text-right">+₹{income.amount.toLocaleString('en-IN')}</td>
+                                    <td className="px-8 py-5 text-sm font-bold text-primary-600 font-mono text-right">+₹{income.amount.toLocaleString('en-IN')}</td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button 
                                                 onClick={() => handleEditClick(income)}
-                                                className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                                className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
                                             >
                                                 <Edit3 className="w-5 h-5" />
                                             </button>
                                             <button 
                                                 onClick={() => handleDeleteIncome(income.id)}
-                                                className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                             >
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
@@ -227,13 +228,13 @@ const IncomePage: React.FC = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-surface-700 tracking-wide uppercase px-1">Category</label>
+                                    <label className="text-sm font-bold text-surface-700 dark:text-surface-400 tracking-wide uppercase px-1">Category</label>
                                     <div className="relative group">
                                         <select 
                                             required
                                             value={newIncome.category}
                                             onChange={(e) => setNewIncome({...newIncome, category: e.target.value})}
-                                            className="w-full pl-4 pr-10 py-4 bg-surface-50/50 border border-surface-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-100 appearance-none font-medium"
+                                            className="w-full pl-4 pr-10 py-4 bg-surface-50/50 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-900/20 appearance-none font-medium text-surface-900 dark:text-white"
                                         >
                                             {INCOME_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                                         </select>
@@ -241,7 +242,7 @@ const IncomePage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-surface-700 tracking-wide uppercase px-1">Date</label>
+                                    <label className="text-sm font-bold text-surface-700 dark:text-surface-400 tracking-wide uppercase px-1">Date</label>
                                     <div className="relative group">
                                         <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-surface-400" />
                                         <input 
@@ -249,7 +250,7 @@ const IncomePage: React.FC = () => {
                                             required
                                             value={newIncome.date}
                                             onChange={(e) => setNewIncome({...newIncome, date: e.target.value})}
-                                            className="w-full pl-12 pr-4 py-4 bg-surface-50/50 border border-surface-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-100 font-medium"
+                                            className="w-full pl-12 pr-4 py-4 bg-surface-50/50 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-900/20 font-medium text-surface-900 dark:text-white"
                                         />
                                     </div>
                                 </div>
@@ -268,10 +269,11 @@ const IncomePage: React.FC = () => {
                                 </button>
                                 <button 
                                     type="submit"
-                                    className="flex-2 py-4 px-8 bg-green-600 text-white rounded-xl font-bold shadow-lg shadow-green-200 dark:shadow-green-900/20 hover:bg-green-700 transition-all active:scale-95 flex items-center justify-center space-x-2"
+                                    className="relative flex-[2] py-4 px-8 overflow-hidden bg-gray-800 text-white rounded-xl font-bold shadow-lg shadow-gray-300 dark:shadow-none transition-all active:scale-95 flex items-center justify-center space-x-2 group"
                                 >
-                                    <span>{editingIncome ? 'Update Income' : 'Add Income'}</span>
-                                    <ArrowUpRight className="w-5 h-5" />
+                                    <span className="absolute inset-0 w-0 h-full bg-primary-600 transition-all duration-500 ease-out group-hover:w-full"></span>
+                                    <span className="relative z-10">{editingIncome ? 'Update Income' : 'Add Income'}</span>
+                                    <ArrowUpRight className="w-5 h-5 relative z-10" />
                                 </button>
                             </div>
                         </form>

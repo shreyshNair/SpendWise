@@ -91,10 +91,11 @@ const GoalsPage: React.FC = () => {
                             <button 
                                 type="submit"
                                 disabled={saving}
-                                className="w-full py-4 bg-primary-600 text-white rounded-xl font-bold shadow-lg shadow-primary-200 hover:bg-primary-700 transition-all flex items-center justify-center space-x-2 active:scale-95 disabled:opacity-50"
+                                className="relative w-full py-4 overflow-hidden bg-gray-800 text-white rounded-xl font-bold shadow-lg shadow-gray-300 dark:shadow-none transition-all flex items-center justify-center space-x-2 active:scale-95 disabled:opacity-50 group"
                             >
-                                <Save className="w-5 h-5" />
-                                <span>{saving ? 'Updating...' : goal ? 'Update Goal' : 'Set Savings Goal'}</span>
+                                <span className="absolute inset-0 w-0 h-full bg-primary-600 transition-all duration-500 ease-out group-hover:w-full"></span>
+                                <Save className="w-5 h-5 relative z-10" />
+                                <span className="relative z-10">{saving ? 'Updating...' : goal ? 'Update Goal' : 'Set Savings Goal'}</span>
                             </button>
                         </form>
                     </div>
@@ -111,7 +112,7 @@ const GoalsPage: React.FC = () => {
                                 </div>
                                 <div className={`
                                     px-4 py-2 rounded-full font-bold text-sm tracking-wide uppercase
-                                    ${status === 'SUCCESS' ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' : status === 'ON_TRACK' ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400' : 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400'}
+                                    ${status === 'SUCCESS' ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' : status === 'ON_TRACK' ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400' : 'bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'}
                                 `}>
                                     {status.replace('_', ' ')}
                                 </div>
@@ -145,7 +146,7 @@ const GoalsPage: React.FC = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10 pt-10 border-t border-surface-50 dark:border-surface-700">
                                 <div className="flex items-start space-x-4 p-4 rounded-2xl bg-surface-50 dark:bg-surface-900/50">
                                     <div className="mt-1">
-                                        {status === 'AT_RISK' ? <AlertCircle className="w-5 h-5 text-orange-500" /> : <CheckCircle2 className="w-5 h-5 text-green-500" />}
+                                        {status === 'AT_RISK' ? <AlertCircle className="w-5 h-5 text-primary-500" /> : <CheckCircle2 className="w-5 h-5 text-green-500" />}
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-surface-900 dark:text-white">System Status</h4>
@@ -177,7 +178,7 @@ const GoalsPage: React.FC = () => {
                         </h3>
                         <div className="space-y-4">
                             {history.length > 0 ? history.map((h) => (
-                                <div key={h.id} className="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-50 dark:hover:bg-surface-900 transition-colors border border-transparent hover:border-surface-100 dark:hover:border-surface-700">
+                                <div key={h.id} className="flex items-center justify-between p-4 rounded-2xl hover:bg-primary-50/30 dark:hover:bg-surface-900 transition-colors border border-transparent hover:border-primary-100 dark:hover:border-surface-700">
                                     <div>
                                         <p className="font-bold text-surface-900 dark:text-white">{format(new Date(h.year, h.month - 1), 'MMMM yyyy')}</p>
                                         <p className="text-xs font-medium text-surface-500 dark:text-surface-400">Target: ₹{h.targetAmount.toLocaleString('en-IN')}</p>

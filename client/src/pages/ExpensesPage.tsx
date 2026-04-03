@@ -110,10 +110,11 @@ const ExpensesPage: React.FC = () => {
                             });
                             setAddModalOpen(true);
                         }}
-                        className="flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold shadow-lg shadow-primary-200 dark:shadow-primary-900/20 hover:bg-primary-700 transition-all active:scale-95"
+                        className="relative flex items-center space-x-2 px-6 py-3 overflow-hidden bg-gray-800 text-white rounded-xl font-semibold shadow-lg shadow-gray-300 dark:shadow-none hover:shadow-xl transition-all active:scale-95 group"
                     >
-                        <Plus className="w-5 h-5" />
-                        <span>Add Expense</span>
+                        <span className="absolute inset-0 w-0 h-full bg-primary-600 transition-all duration-500 ease-out group-hover:w-full"></span>
+                        <Plus className="w-5 h-5 relative z-10" />
+                        <span className="relative z-10">Add Expense</span>
                     </button>
                 </div>
             </div>
@@ -167,28 +168,28 @@ const ExpensesPage: React.FC = () => {
                                     </td>
                                 </tr>
                             ) : filteredExpenses.length > 0 ? filteredExpenses.map((expense) => (
-                                <tr key={expense.id} className="hover:bg-surface-50/50 transition-colors group">
-                                    <td className="px-8 py-5 text-sm text-surface-600 font-medium">
+                                <tr key={expense.id} className="hover:bg-primary-50/30 dark:hover:bg-surface-700/50 transition-colors group">
+                                    <td className="px-8 py-5 text-sm text-surface-600 dark:text-surface-300 font-medium">
                                         {format(new Date(expense.date), 'MMM dd, yyyy')}
                                     </td>
                                     <td className="px-8 py-5 text-sm">
-                                        <span className="px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-xs font-bold uppercase tracking-wider">
+                                        <span className="px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 text-xs font-bold uppercase tracking-wider">
                                             {expense.category}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-5 text-sm text-surface-500 truncate max-w-xs">{expense.description || '-'}</td>
-                                    <td className="px-8 py-5 text-sm font-bold text-surface-900 text-right">₹{expense.amount.toLocaleString('en-IN')}</td>
+                                    <td className="px-8 py-5 text-sm text-surface-500 dark:text-surface-400 truncate max-w-xs">{expense.description || '-'}</td>
+                                    <td className="px-8 py-5 text-sm font-bold text-surface-900 dark:text-white text-right">₹{expense.amount.toLocaleString('en-IN')}</td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button 
                                                 onClick={() => handleEditClick(expense)}
-                                                className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                                className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
                                             >
                                                 <Edit3 className="w-5 h-5" />
                                             </button>
                                             <button 
                                                 onClick={() => handleDeleteExpense(expense.id)}
-                                                className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                             >
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
@@ -290,9 +291,10 @@ const ExpensesPage: React.FC = () => {
                                 </button>
                                 <button 
                                     type="submit"
-                                    className="flex-2 py-4 px-8 bg-primary-600 text-white rounded-xl font-bold shadow-lg shadow-primary-200 dark:shadow-primary-900/20 hover:bg-primary-700 transition-all active:scale-95"
+                                    className="relative flex-[2] py-4 px-8 overflow-hidden bg-gray-800 text-white rounded-xl font-bold shadow-lg shadow-gray-300 dark:shadow-none transition-all active:scale-95 group"
                                 >
-                                    {editingExpense ? 'Update Transaction' : 'Save Transaction'}
+                                    <span className="absolute inset-0 w-0 h-full bg-primary-600 transition-all duration-500 ease-out group-hover:w-full"></span>
+                                    <span className="relative z-10">{editingExpense ? 'Update Transaction' : 'Save Transaction'}</span>
                                 </button>
                             </div>
                         </form>

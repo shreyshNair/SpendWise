@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, []);
 
-  const COLORS = ['#0ea5e9', '#6366f1', '#8b5cf6', '#d946ef', '#f43f5e', '#f97316', '#eab308', '#22c55e'];
+  const COLORS = ['#ea580c', '#f97316', '#fb923c', '#fdba74', '#c2410c', '#9a3412', '#fed7aa', '#7c2d12'];
 
   if (loading) {
     return (
@@ -52,21 +52,22 @@ const Dashboard: React.FC = () => {
           <h1 className="text-3xl font-bold text-surface-900 dark:text-white tracking-tight">Overview</h1>
           <p className="text-surface-500 dark:text-surface-400 mt-1">Review your financial health and spending patterns.</p>
         </div>
-        <Link to="/expenses" className="flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold shadow-lg shadow-primary-200 dark:shadow-primary-900/20 hover:bg-primary-700 transition-all active:scale-95 w-fit">
-          <Plus className="w-5 h-5" />
-          <span>Add Expense</span>
+        <Link to="/expenses" className="relative flex items-center space-x-2 px-6 py-3 overflow-hidden bg-gray-800 text-white rounded-xl font-semibold shadow-lg shadow-gray-300 dark:shadow-none hover:shadow-xl transition-all active:scale-95 w-fit group">
+          <span className="absolute inset-0 w-0 h-full bg-primary-600 transition-all duration-500 ease-out group-hover:w-full"></span>
+          <Plus className="w-5 h-5 relative z-10" />
+          <span className="relative z-10">Add Expense</span>
         </Link>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-surface-800 p-6 rounded-2xl border border-surface-100 dark:border-surface-700 shadow-sm transition-all hover:shadow-md">
-          <div className="bg-green-50 dark:bg-green-900/20 w-12 h-12 rounded-xl flex items-center justify-center text-green-600 dark:text-green-400 mb-4">
+          <div className="bg-primary-50 dark:bg-primary-900/20 w-12 h-12 rounded-xl flex items-center justify-center text-primary-600 dark:text-primary-400 mb-4">
             <Wallet className="w-6 h-6" />
           </div>
           <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Total Income</p>
           <p className="text-2xl font-bold text-surface-900 dark:text-white mt-1">₹{summary?.totalIncome?.toLocaleString('en-IN')}</p>
-          <div className="flex items-center mt-3 text-xs text-green-600 font-semibold space-x-1">
+          <div className="flex items-center mt-3 text-xs text-primary-600 font-semibold space-x-1">
              <ArrowUpRight className="w-4 h-4" />
              <span>Income this month</span>
           </div>
@@ -116,10 +117,10 @@ const Dashboard: React.FC = () => {
                 <Line 
                     type="monotone" 
                     dataKey="amount" 
-                    stroke="#0ea5e9" 
+                    stroke="#ea580c" 
                     strokeWidth={4} 
-                    dot={{fill: '#0ea5e9', strokeWidth: 2, scale: 1.5}} 
-                    activeDot={{r: 8, strokeWidth: 0}}
+                    dot={{fill: '#ea580c', strokeWidth: 2, scale: 1.5}} 
+                    activeDot={{r: 8, strokeWidth: 0, fill: '#f97316'}}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -184,17 +185,17 @@ const Dashboard: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-surface-50 dark:divide-surface-700">
               {recentExpenses.length > 0 ? recentExpenses.map((expense) => (
-                <tr key={expense.id} className="hover:bg-surface-50/50 transition-colors group">
-                  <td className="px-8 py-5 text-sm text-surface-600 font-medium">
+                <tr key={expense.id} className="hover:bg-primary-50/30 dark:hover:bg-surface-700/50 transition-colors group">
+                  <td className="px-8 py-5 text-sm text-surface-600 dark:text-surface-300 font-medium">
                     {format(new Date(expense.date), 'MMM dd, yyyy')}
                   </td>
                   <td className="px-8 py-5 text-sm">
-                    <span className="px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-xs font-bold uppercase tracking-wider">
+                    <span className="px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 text-xs font-bold uppercase tracking-wider">
                       {expense.category}
                     </span>
                   </td>
-                  <td className="px-8 py-5 text-sm text-surface-500 truncate max-w-xs">{expense.description || '-'}</td>
-                  <td className="px-8 py-5 text-sm font-bold text-surface-900 text-right">₹{expense.amount.toLocaleString('en-IN')}</td>
+                  <td className="px-8 py-5 text-sm text-surface-500 dark:text-surface-400 truncate max-w-xs">{expense.description || '-'}</td>
+                  <td className="px-8 py-5 text-sm font-bold text-surface-900 dark:text-white text-right">₹{expense.amount.toLocaleString('en-IN')}</td>
                 </tr>
               )) : (
                 <tr>
