@@ -10,7 +10,7 @@ SpendWise is a sophisticated full-stack application designed to provide users wi
 
 | Dashboard | Dark Mode Insights |
 |-----------|------------------|
-| ![Dashboard Preview](docs/assets/dashboard.png) | ![Dark Mode Preview](docs/assets/dark_mode.png) |
+| ![Dashboard Preview](docs/assets/lightMode.png) | ![Dark Mode Preview](docs/assets/darkMode.png) |
 
 ---
 
