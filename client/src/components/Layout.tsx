@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ReceiptText, Wallet, Target, Lightbulb, LogOut, Menu, X, Plus, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, ReceiptText, Wallet, Target, Lightbulb, LogOut, Menu, X, Sun, Moon } from 'lucide-react';
 import { useAuthStore } from '../store/auth.store';
 import { useThemeStore } from '../store/theme.store';
 import { useEffect } from 'react';
