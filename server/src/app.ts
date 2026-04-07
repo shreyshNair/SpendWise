@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
-dotenv.config();
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 import express from 'express';
 import cors from 'cors';
@@ -17,12 +19,16 @@ const app = express();
 const prisma = new PrismaClient().$extends(withAccelerate());
 
 // Middleware
-app.use(helmet());
+// Helmet can conflict with Vercel serverless; disable in production
+if (process.env.NODE_ENV !== 'production') {
+  app.use(helmet());
+}
 app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:5000',
     'https://spend-wise-ivory.vercel.app',
+    'https://spend-wise-xi-ten.vercel.app',
     /\.vercel\.app$/,
   ],
   credentials: true,
