@@ -30,6 +30,17 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });
 
+    // Store session (same as login — required by auth middleware)
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+    await prisma.session.create({
+      data: {
+        userId: user.id,
+        token,
+        expiresAt,
+      },
+    });
+
     res.status(201).json({
       success: true,
       token,
