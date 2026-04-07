@@ -12,20 +12,18 @@ export const authenticate = async (req: any, res: Response, next: NextFunction) 
     }
 
     const token = authHeader.split(' ')[1];
+    
+    // In Supabase JWTs, the user ID is stored in the 'sub' field.
+    // If it's a legacy old token it might use 'userId', so we fallback.
     const decoded: any = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.sub || decoded.userId;
 
-    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       return res.status(401).json({ success: false, message: 'User not found' });
     }
 
-    // Check if session exists and is valid
-    const session = await prisma.session.findUnique({ where: { token } });
-    if (!session || new Date() > session.expiresAt) {
-      return res.status(401).json({ success: false, message: 'Session expired or invalid' });
-    }
-
-    req.userId = decoded.userId;
+    req.userId = userId;
     next();
   } catch (error) {
     return res.status(401).json({ success: false, message: 'Invalid token' });

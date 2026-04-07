@@ -3,7 +3,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../app';
 
+import { createClient } from '@supabase/supabase-js';
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -13,33 +19,38 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       return res.status(400).json({ success: false, message: 'All fields are required' });
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return res.status(409).json({ success: false, message: 'User already exists' });
+    // 1. Sign up user via Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          firstName,
+          lastName,
+        }
+      }
+    });
+
+    if (authError || !authData.user) {
+      return res.status(400).json({ success: false, message: authError?.message || 'Failed to create Supabase user' });
     }
 
-    const passwordHash = await bcrypt.hash(password, 12);
-    const user = await prisma.user.create({
-      data: {
-        email,
-        passwordHash,
-        firstName,
-        lastName,
-      },
-    });
+    // 2. Mirror the user in our Prisma database
+    let user = await prisma.user.findUnique({ where: { email } });
+    
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          id: authData.user.id, // match Supabase UUID
+          email,
+          passwordHash: 'supabase', // We no longer store the hash
+          firstName,
+          lastName,
+        },
+      });
+    }
 
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });
-
-    // Store session (same as login — required by auth middleware)
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 24);
-    await prisma.session.create({
-      data: {
-        userId: user.id,
-        token,
-        expiresAt,
-      },
-    });
+    const token = authData.session?.access_token || jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });
 
     res.status(201).json({
       success: true,
@@ -64,32 +75,35 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });
-
-    // Store session
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 24);
-    await prisma.session.create({
-      data: {
-        userId: user.id,
-        token,
-        expiresAt,
-      },
+    // Attempt login with Supabase
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
+
+    if (authError || !authData.user || !authData.session) {
+      return res.status(401).json({ success: false, message: authError?.message || 'Invalid credentials' });
+    }
+
+    // Check if user exists in Prisma DB (for backwards compatibility/relations)
+    let user = await prisma.user.findUnique({ where: { email } });
+    
+    if (!user) {
+       // Auto-create if they somehow logged in but aren't in public schema
+       user = await prisma.user.create({
+        data: {
+          id: authData.user.id,
+          email,
+          passwordHash: 'supabase',
+          firstName: authData.user.user_metadata?.firstName || 'User',
+          lastName: authData.user.user_metadata?.lastName || '',
+        },
+      });
+    }
 
     res.json({
       success: true,
-      token,
+      token: authData.session.access_token,
       user: {
         id: user.id,
         email: user.email,
