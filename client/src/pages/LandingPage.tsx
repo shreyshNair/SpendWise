@@ -37,9 +37,9 @@ const features = [
   },
 ];
 
-import { cubicBezier } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 
-const fadeUpVariants = {
+const fadeUpVariants: Variants = {
   hidden: { opacity: 0, y: 40 },
   visible: (i: number) => ({
     opacity: 1,
@@ -47,7 +47,7 @@ const fadeUpVariants = {
     transition: {
       duration: 0.8,
       delay: i * 0.1,
-      ease: cubicBezier(0.25, 0.4, 0.25, 1),
+      ease: [0.25, 0.4, 0.25, 1] as [number, number, number, number],
     },
   }),
 };
