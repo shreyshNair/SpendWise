@@ -6,8 +6,14 @@ import { prisma } from '../app';
 import { createClient } from '@supabase/supabase-js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const SUPABASE_URL = process.env.SUPABASE_URL || 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+
+// Provide a valid URL structure as fallback so createClient doesn't crash the Lambda on boot.
+const SUPABASE_URL = process.env.SUPABASE_URL?.startsWith('http') 
+  ? process.env.SUPABASE_URL 
+  : 'https://placeholder.supabase.co';
+
+// They added their anon key to ANON_PUBLIC, so we look for that first just in case.
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.ANON_PUBLIC || 'placeholder-anon-key';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
