@@ -3,19 +3,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../app';
 
-import { createClient } from '@supabase/supabase-js';
-
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Provide a valid URL structure as fallback so createClient doesn't crash the Lambda on boot.
-const SUPABASE_URL = process.env.SUPABASE_URL?.startsWith('http') 
-  ? process.env.SUPABASE_URL 
-  : 'https://placeholder.supabase.co';
+// Supabase removed - Using local MongoDB auth
 
-// They added their anon key to ANON_PUBLIC, so we look for that first just in case.
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.ANON_PUBLIC || 'placeholder-anon-key';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -25,38 +16,27 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       return res.status(400).json({ success: false, message: 'All fields are required' });
     }
 
-    // 1. Sign up user via Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          firstName,
-          lastName,
-        }
-      }
+    // 1. Check if user already exists
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'User already exists' });
+    }
+
+    // 2. Hash password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // 3. Create user locally in MongoDB
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        firstName,
+        lastName,
+      },
     });
 
-    if (authError || !authData.user) {
-      return res.status(400).json({ success: false, message: authError?.message || 'Failed to create Supabase user' });
-    }
-
-    // 2. Mirror the user in our Prisma database
-    let user = await prisma.user.findUnique({ where: { email } });
-    
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          id: authData.user.id, // match Supabase UUID
-          email,
-          passwordHash: 'supabase', // We no longer store the hash
-          firstName,
-          lastName,
-        },
-      });
-    }
-
-    const token = authData.session?.access_token || jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });
+    // 4. Generate local JWT
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
 
     res.status(201).json({
       success: true,
@@ -81,35 +61,29 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
-    // Attempt login with Supabase
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (authError || !authData.user || !authData.session) {
-      return res.status(401).json({ success: false, message: authError?.message || 'Invalid credentials' });
-    }
-
-    // Check if user exists in Prisma DB (for backwards compatibility/relations)
-    let user = await prisma.user.findUnique({ where: { email } });
+    // 1. Look up user
+    const user = await prisma.user.findUnique({ where: { email } });
     
-    if (!user) {
-       // Auto-create if they somehow logged in but aren't in public schema
-       user = await prisma.user.create({
-        data: {
-          id: authData.user.id,
-          email,
-          passwordHash: 'supabase',
-          firstName: authData.user.user_metadata?.firstName || 'User',
-          lastName: authData.user.user_metadata?.lastName || '',
-        },
-      });
+    if (!user || !user.passwordHash) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
+
+    // 2. Verify password (handling legacy 'supabase' marked accounts if necessary)
+    if (user.passwordHash === 'supabase') {
+       return res.status(401).json({ success: false, message: 'This account was created via Supabase. Please reset your password or sign up again.' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    // 3. Generate token
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
       success: true,
-      token: authData.session.access_token,
+      token,
       user: {
         id: user.id,
         email: user.email,

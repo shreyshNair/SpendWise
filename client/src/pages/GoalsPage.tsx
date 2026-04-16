@@ -36,17 +36,25 @@ const GoalsPage: React.FC = () => {
 
     const handleSetGoal = async (e: React.FormEvent) => {
         e.preventDefault();
+        const amount = parseFloat(targetAmount);
+        if (isNaN(amount) || amount <= 0) {
+            alert('Please enter a valid amount greater than 0');
+            return;
+        }
+
         setSaving(true);
         try {
             const now = new Date();
-            await api.post('/goals', {
+            const res = await api.post('/goals', {
                 month: now.getMonth() + 1,
                 year: now.getFullYear(),
-                targetAmount: parseFloat(targetAmount),
+                targetAmount: amount,
             });
-            fetchData();
-        } catch (error) {
+            console.log('Goal saved successfully:', res.data);
+            await fetchData();
+        } catch (error: any) {
             console.error('Error setting goal:', error);
+            alert('Failed to save goal: ' + (error.response?.data?.message || error.message));
         } finally {
             setSaving(false);
         }

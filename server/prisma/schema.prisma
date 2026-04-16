@@ -4,13 +4,13 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id                String          @id @default(uuid())
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  supabaseId        String?         @map("supabase_id")
   email             String          @unique
   passwordHash      String
   firstName         String
@@ -29,8 +29,8 @@ model User {
 }
 
 model Expense {
-  id          String   @id @default(uuid())
-  userId      String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
   user        User     @relation(fields: [userId], references: [id])
   amount      Float
   category    String
@@ -47,8 +47,8 @@ model Expense {
 }
 
 model Income {
-  id        String   @id @default(uuid())
-  userId    String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
   source    String
   amount    Float
@@ -63,8 +63,8 @@ model Income {
 }
 
 model SavingsGoal {
-  id           String   @id @default(uuid())
-  userId       String
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
   user         User     @relation(fields: [userId], references: [id])
   month        Int
   year         Int
@@ -76,8 +76,8 @@ model SavingsGoal {
 }
 
 model MonthlySummary {
-  id               String   @id @default(uuid())
-  userId           String
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String   @db.ObjectId
   user             User     @relation(fields: [userId], references: [id])
   month            Int
   year             Int
@@ -95,8 +95,8 @@ model MonthlySummary {
 }
 
 model Session {
-  id        String   @id @default(uuid())
-  userId    String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
   token     String   @unique
   expiresAt DateTime

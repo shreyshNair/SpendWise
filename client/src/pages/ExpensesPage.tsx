@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Filter, Download as DownloadIcon, ChevronDown, Trash2, Edit3, X, Calendar as CalendarIcon } from 'lucide-react';
+import { Plus, Search, Filter, Download as DownloadIcon, ChevronDown, Trash2, Edit3, X, Calendar as CalendarIcon, TrendingDown } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '../services/api';
 import type { Expense } from '../types';
@@ -27,7 +27,11 @@ const ExpensesPage: React.FC = () => {
         setLoading(true);
         try {
             const res = await api.get(`/expenses?category=${filterCategory}`);
-            setExpenses(res.data.expenses);
+            if (res.data && Array.isArray(res.data.expenses)) {
+                setExpenses(res.data.expenses);
+            } else {
+                setExpenses([]);
+            }
         } catch (error) {
             console.error('Error fetching expenses:', error);
         } finally {
@@ -82,10 +86,12 @@ const ExpensesPage: React.FC = () => {
         }
     };
 
-    const filteredExpenses = expenses.filter(e => 
-        (e.description?.toLowerCase().includes(search.toLowerCase()) || 
-        e.category.toLowerCase().includes(search.toLowerCase()))
+    const filteredExpenses = (expenses || []).filter(e => 
+        (e.description?.toLowerCase().includes((search || '').toLowerCase()) || 
+        (e.category || '').toLowerCase().includes((search || '').toLowerCase()))
     );
+
+    const totalAmount = filteredExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
 
     return (
         <div className="space-y-6">
@@ -116,6 +122,17 @@ const ExpensesPage: React.FC = () => {
                         <Plus className="w-5 h-5 relative z-10" />
                         <span className="relative z-10">Add Expense</span>
                     </button>
+                </div>
+            </div>
+ 
+            {/* Summary Card */}
+            <div className="bg-white dark:bg-surface-800 p-8 rounded-3xl border border-surface-100 dark:border-surface-700 shadow-sm flex items-center justify-between group">
+                <div>
+                    <p className="text-sm font-bold text-surface-500 dark:text-surface-400 uppercase tracking-widest">Total Expenses</p>
+                    <h2 className="text-4xl font-black text-surface-900 dark:text-white mt-1">₹{totalAmount.toLocaleString('en-IN')}</h2>
+                </div>
+                <div className="bg-red-50 dark:bg-red-900/20 w-16 h-16 rounded-2xl flex items-center justify-center text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform">
+                    <TrendingDown className="w-8 h-8" />
                 </div>
             </div>
 
@@ -170,15 +187,25 @@ const ExpensesPage: React.FC = () => {
                             ) : filteredExpenses.length > 0 ? filteredExpenses.map((expense) => (
                                 <tr key={expense.id} className="hover:bg-primary-50/30 dark:hover:bg-surface-700/50 transition-colors group">
                                     <td className="px-8 py-5 text-sm text-surface-600 dark:text-surface-300 font-medium">
-                                        {format(new Date(expense.date), 'MMM dd, yyyy')}
+                                        {expense.date ? (
+                                            (() => {
+                                                try {
+                                                    return format(new Date(expense.date), 'MMM dd, yyyy');
+                                                } catch (e) {
+                                                    return 'Invalid Date';
+                                                }
+                                            })()
+                                        ) : 'No Date'}
                                     </td>
                                     <td className="px-8 py-5 text-sm">
                                         <span className="px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 text-xs font-bold uppercase tracking-wider">
-                                            {expense.category}
+                                            {expense.category || 'Uncategorized'}
                                         </span>
                                     </td>
                                     <td className="px-8 py-5 text-sm text-surface-500 dark:text-surface-400 truncate max-w-xs">{expense.description || '-'}</td>
-                                    <td className="px-8 py-5 text-sm font-bold text-surface-900 dark:text-white text-right">₹{expense.amount.toLocaleString('en-IN')}</td>
+                                    <td className="px-8 py-5 text-sm font-bold text-surface-900 dark:text-white text-right">
+                                        ₹{(expense.amount || 0).toLocaleString('en-IN')}
+                                    </td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button 

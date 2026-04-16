@@ -103,9 +103,9 @@ const RecommendationsPage: React.FC = () => {
                             </div>
                         )) : (
                         <div className="bg-white dark:bg-surface-800 p-10 rounded-3xl border border-surface-100 dark:border-surface-700 text-center space-y-4">
-                                <CheckCircle2 className="w-12 h-12 text-primary-500 mx-auto" />
-                                <p className="text-surface-600 dark:text-surface-400 font-bold text-lg">Your spending is perfectly balanced!</p>
-                                <p className="text-surface-400 dark:text-surface-500 font-medium text-sm">We'll notify you when we find any savings opportunities.</p>
+                                <Search className="w-12 h-12 text-primary-500 mx-auto opacity-50" />
+                                <p className="text-surface-600 dark:text-surface-400 font-bold text-lg">No relative data yet</p>
+                                <p className="text-surface-400 dark:text-surface-500 font-medium text-sm max-w-sm mx-auto">Add more expenses this month and last month to see personalized AI insights and spend trends.</p>
                             </div>
                         )}
                     </div>

@@ -9,20 +9,26 @@ export const createGoal = async (req: any, res: Response, next: NextFunction) =>
       return res.status(400).json({ success: false, message: 'Month, year, and target amount are required' });
     }
 
-    const goal = await prisma.savingsGoal.upsert({
-      where: {
-        id: (await prisma.savingsGoal.findFirst({ where: { userId: req.userId, month, year } }))?.id || 'new-id',
-      },
-      update: {
-        targetAmount: parseFloat(targetAmount),
-      },
-      create: {
-        userId: req.userId,
-        month: parseInt(month),
-        year: parseInt(year),
-        targetAmount: parseFloat(targetAmount),
-      },
+    const existingGoal = await prisma.savingsGoal.findFirst({
+      where: { userId: req.userId, month: parseInt(month), year: parseInt(year) },
     });
+
+    let goal;
+    if (existingGoal) {
+      goal = await prisma.savingsGoal.update({
+        where: { id: existingGoal.id },
+        data: { targetAmount: parseFloat(targetAmount) },
+      });
+    } else {
+      goal = await prisma.savingsGoal.create({
+        data: {
+          userId: req.userId,
+          month: parseInt(month),
+          year: parseInt(year),
+          targetAmount: parseFloat(targetAmount),
+        },
+      });
+    }
 
     res.status(201).json({ success: true, goal });
   } catch (error) {
