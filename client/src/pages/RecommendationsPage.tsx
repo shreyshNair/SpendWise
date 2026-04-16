@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Lightbulb, TrendingUp, TrendingDown, ChevronRight, Zap, Target, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Lightbulb, TrendingUp, TrendingDown, ChevronRight, Zap, Target, Search, AlertTriangle } from 'lucide-react';
 import api from '../services/api';
 import type { Recommendation } from '../types';
 
