@@ -10,7 +10,7 @@
   }
   
   .dark body {
-    @apply bg-surface-900 text-surface-50;
+    @apply bg-surface-950 text-surface-50;
   }
 
   input, select, textarea {
