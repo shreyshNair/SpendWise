@@ -19,16 +19,16 @@ SpendWise is a sophisticated full-stack application designed to provide users wi
 - **🌓 Dynamic Dark Mode**: Premium dark theme integration across all pages with smart state persistence.
 - **📥 Smart Transaction Entry**: Categorized recording of daily expenses and recurring income streams.
 - **🎯 Precise Savings Goals**: Set monthly targets and monitor your progress with real-time feedback.
-- **💡 AI-Powered Insights**: Personalized recommendations for budget optimization based on spending patterns.
-- **🔒 Secure Architecture**: JWT-based authentication, bcrypt hashing, and secure API structure.
+- **💡 AI-Powered Insights**: Personalized recommendations for budget optimization based on spending patterns (requires historical data comparison).
+- **🔒 Secure Architecture**: Self-hosted JWT-based authentication with bcrypt hashing, removing dependency on external auth providers (Supabase).
 
 ---
 
 ## 🛠️ Technology Stack
 - **Frontend**: React 18, Vite, Tailwind CSS, Framer Motion, Zustand (State Management), Recharts.
 - **Backend**: Node.js, Express, TypeScript.
-- **ORM & DB**: Prisma with PostgreSQL (Prisma Accelerate for high-performance edge caching).
-- **Date Management**: `date-fns` for precise temporal calculations.
+- **ORM & DB**: Prisma with **MongoDB Atlas** (Flexible document storage for varied financial tracking).
+- **Date Management**: `date-fns` for precise temporal calculations and multi-month comparison.
 
 ---
 
@@ -42,9 +42,10 @@ SpendWise/
 │   │   ├── store/       # Zustand theme and auth stores
 │   │   └── services/    # Axios API client
 ├── server/              # Express + Prisma backend
-│   ├── prisma/          # Database schema and seed data
+│   ├── prisma/          # MongoDB schema (schema.prisma)
 │   ├── src/
-│   │   ├── controllers/ # Business logic
+│   │   ├── controllers/ # Goal logic, analytics, and transaction handlers
+│   │   ├── middleware/  # JWT validation and protected route logic
 │   │   └── routes/      # REST API endpoints
 ```
 
@@ -53,11 +54,10 @@ SpendWise/
 ## 🚀 Local Setup Guide
 
 ### 1. Database Setup
-Ensure you have a PostgreSQL instance. Set your connection strings in `server/.env`:
+Create a **MongoDB Atlas** cluster (Free Tier) and ensure you have your connection string. Set your variables in `server/.env`:
 ```env
-DATABASE_URL="your-postgresql-url"
-DIRECT_URL="your-direct-postgresql-url"
-JWT_SECRET="generate-a-strong-secret"
+DATABASE_URL="mongodb+srv://<username>:<password>@cluster.mongodb.net/spendwise?retryWrites=true&w=majority"
+JWT_SECRET="your-secure-jwt-secret-key"
 ```
 
 ### 2. Backend Initialization
@@ -65,9 +65,8 @@ JWT_SECRET="generate-a-strong-secret"
 cd server
 npm install
 npx prisma generate
-npx prisma migrate dev --name init
-# Seed demo data (optional)
-npx ts-node prisma/seed.ts
+# Sync schema with MongoDB Atlas (MongoDB uses db push instead of migrations)
+npx prisma db push
 npm run dev
 ```
 
@@ -83,13 +82,13 @@ npm run dev
 ---
 
 ## 🗄️ Database Management
-The application uses **Prisma** to manage the PostgreSQL database. You can manage your data easily using the built-in visual tool:
+The application uses **Prisma** as its primary data layer. Since moving to MongoDB, you can use Prisma Studio to manage your documents visually:
 
 ```bash
 cd server
 npx prisma studio
 ```
-This will open a visual interface at `localhost:5555` where you can view, edit, and delete records for Users, Expenses, Incomes, and Goals.
+This tool allows you to directly edit Users, Expenses, Incomes, and Savings Goals. Note that Savings Goals are tracked monthly and updated via the `upsert` pattern in the controller.
 
 ---
 
@@ -101,16 +100,15 @@ SpendWise is optimized for deployment on **Vercel**.
 1.  Connect your repository to Vercel.
 2.  Set the **Root Directory** to `server`.
 3.  Add the following **Environment Variables**:
-    -   `DATABASE_URL`: Your production PostgreSQL URL.
+    -   `DATABASE_URL`: Your MongoDB cluster URL.
     -   `JWT_SECRET`: Production secret.
-4.  Vercel will automatically detect the Express app if configured with a `vercel.json` (root directory).
+4.  Vercel will detect the `vercel.json` if present in the root.
 
 ### **Frontend (React)**
-1.  Create a separate Vercel project or a monorepo workspace.
-2.  Set the **Root Directory** to `client`.
-3.  Set the **Build Command** to `npm run build`.
-4.  Set the **Output Directory** to `dist`.
-5.  Add the environment variable:
+1.  Set the **Root Directory** to `client`.
+2.  Set the **Build Command** to `npm run build`.
+3.  Set the **Output Directory** to `dist`.
+4.  Add the environment variable:
     -   `VITE_API_URL`: The URL of your deployed backend.
 
 ---
